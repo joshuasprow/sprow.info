@@ -5,13 +5,17 @@ admin.initializeApp();
 
 const db = admin.firestore();
 
-exports.handleNewUser = functions.auth.user().onCreate(async (user) => {
-  const userDoc = {
-    created: user.metadata.creationTime,
+exports.onUserCreate = functions.auth.user().onCreate((user) =>
+  db.doc(`users/${user.uid}`).create({
+    creationTime: user.metadata.creationTime,
     displayName: user.displayName,
     email: user.email,
-    role: "user",
-  };
+    lastSignInTime: user.metadata.lastSignInTime,
+    uid: user.uid,
+    x: user.providerData,
+  })
+);
 
-  await db.doc(`users/${user.uid}`).create(userDoc);
-});
+exports.onUserDelete = functions.auth
+  .user()
+  .onDelete((user) => db.doc(`users/${user.uid}`).delete());
