@@ -1,62 +1,66 @@
 import React, {
   createContext,
   FC,
+  useContext,
   useEffect,
   useState,
-  useContext,
 } from "react";
-import { auth, db } from "./firebase";
+import { auth, db, Timestamp, newTimestamp } from "./firebase";
 
-export interface IAppContext {
-  posts: IPostDoc[];
-  user: firebase.User | null;
+interface AppContext {
+  posts: PostDoc[];
+  user: UserDoc | null;
 }
 
-interface IUserDoc
-  extends Pick<firebase.User, "displayName" | "email" | "uid"> {
-  creationTime: Date;
-  lastSignInTime: Date;
+interface UserDoc extends Pick<firebase.User, "displayName" | "email" | "uid"> {
+  creationTime: Timestamp;
+  lastSignInTime: Timestamp;
 }
 
-export interface IPostDoc {
-  creationTime: Date;
+export interface PostDoc {
+  creationTime: Timestamp;
   message: string;
   uid: string;
-  user?: IUserDoc;
 }
 
-const initialContext: IAppContext = {
+const initialContext: AppContext = {
   posts: [],
   user: null,
 };
 
+const Context = createContext(initialContext);
+
+Context.displayName = "AppContext";
+
+export const useAppContext = () => useContext(Context);
+
 const updateLastLogin = async ({
   lastSignInTime,
   uid,
-}: Pick<IUserDoc, "lastSignInTime" | "uid">) =>
+}: Pick<UserDoc, "lastSignInTime" | "uid">) =>
   db
     .collection("users")
     .doc(uid)
     .update({ lastSignInTime })
     .catch(console.error);
 
-export const AppContext = createContext(initialContext);
-AppContext.displayName = "AppContext";
-
-export const useAppContext = () => useContext(AppContext);
-
 export const AppProvider: FC = (props) => {
-  const [posts, setPosts] = useState<IPostDoc[]>([]);
-  const [user, setUser] = useState<IAppContext["user"]>(null);
+  const [firebaseUser, setFirebaseUser] = useState<firebase.User | null>(null);
+
+  const [posts, setPosts] = useState<PostDoc[]>([]);
+  const [user, setUser] = useState<AppContext["user"]>(null);
 
   useEffect(() => {
     auth().onAuthStateChanged(
-      async (user) => {
-        setUser(user);
+      async (u) => {
+        setFirebaseUser(u);
 
-        if (user) {
-          await updateLastLogin({ lastSignInTime: new Date(), uid: user.uid });
-        }
+        if (!u) return;
+
+        await updateLastLogin({
+          lastSignInTime: newTimestamp(),
+          uid: u.uid,
+        });
       },
       (error) => {
         console.error(error);
@@ -65,27 +69,36 @@ export const AppProvider: FC = (props) => {
   }, []);
 
   useEffect(() => {
-    let unsubscribe: () => void;
+    let unsubPosts: () => void;
+    let unsubUser: () => void;
 
-    if (user) {
-      unsubscribe = db
+    if (firebaseUser) {
+      unsubPosts = db
         .collection("posts")
+        .orderBy("creationTime", "desc")
+        .limit(100)
         .onSnapshot({ includeMetadataChanges: true }, (snap) => {
-          const nextPosts: IPostDoc[] = [];
+          const nextPosts: PostDoc[] = [];
 
           snap.forEach((doc) => {
-            console.log(doc.data());
-            nextPosts.push(doc.data() as IPostDoc);
+            nextPosts.push(doc.data() as PostDoc);
           });
 
           setPosts(nextPosts);
         });
+
+      unsubUser = db
+        .doc(`users/${firebaseUser.uid}`)
+        .onSnapshot({ includeMetadataChanges: true }, (doc) => {
+          setUser(doc.data() as UserDoc);
+        });
     }
 
     return () => {
-      if (unsubscribe) unsubscribe();
+      if (unsubPosts) unsubPosts();
+      if (unsubUser) unsubUser();
     };
-  }, [user]);
+  }, [firebaseUser]);
 
-  return <AppContext.Provider {...props} value={{ posts, user }} />;
+  return <Context.Provider {...props} value={{ posts, user }} />;
 };

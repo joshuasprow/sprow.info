@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { IPostDoc, useAppContext } from "../context";
-import { db } from "../firebase";
+import { PostDoc, useAppContext } from "../context";
+import { db, newTimestamp } from "../firebase";
 
-const createPost = async (post: IPostDoc) => {
+const createPost = async (post: PostDoc) => {
   const doc = db.collection("posts").doc();
 
   await doc.set(post);
@@ -28,7 +28,7 @@ export default function PostForm() {
 
     setCreating(true);
 
-    await createPost({ creationTime: new Date(), message, uid: user.uid });
+    await createPost({ creationTime: newTimestamp(), message, uid: user.uid });
 
     setCreating(false);
     setMessage("");
@@ -39,6 +39,7 @@ export default function PostForm() {
       <input
         disabled={disabled || creating}
         onChange={handleChange}
+        placeholder="type something..."
         type="text"
         value={message}
       />
