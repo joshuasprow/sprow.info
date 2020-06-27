@@ -1,6 +1,10 @@
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 
+admin.initializeApp();
+
+const db = admin.firestore();
+
 exports.handleNewUser = functions.auth.user().onCreate(async (user) => {
   const userDoc = {
     created: user.metadata.creationTime,
@@ -9,5 +13,5 @@ exports.handleNewUser = functions.auth.user().onCreate(async (user) => {
     role: "user",
   };
 
-  await admin.firestore().doc(`users/${user.uid}`).create(userDoc);
+  await db.doc(`users/${user.uid}`).create(userDoc);
 });
