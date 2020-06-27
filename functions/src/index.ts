@@ -18,7 +18,9 @@ exports.onUserCreate = functions.auth.user().onCreate(async (user) => {
 
     return { success: true };
   } catch (error) {
-    throw new functions.https.HttpsError("internal", error.message);
+    console.error(error);
+
+    return { success: false };
   }
 });
 
@@ -28,6 +30,8 @@ exports.onUserDelete = functions.auth.user().onDelete(async (user) => {
 
     return { success: true };
   } catch (error) {
-    throw new functions.https.HttpsError("internal", error.message);
+    console.error(error);
+
+    return { success: false };
   }
 });
