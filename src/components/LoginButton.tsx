@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import { AppContext } from "../context";
-import { firebase } from "../firebase";
+import firebase, { auth } from "../firebase";
 
 const uiConfig: firebaseui.auth.Config = {
   signInFlow: "popup",
@@ -18,7 +18,7 @@ export default function LoginButton() {
   const { user } = useContext(AppContext);
   const [visible, setVisible] = useState(false);
 
-  const signOut = () => firebase.auth().signOut();
+  const signOut = () => auth().signOut();
 
   const show = () => setVisible(true);
 
@@ -26,7 +26,5 @@ export default function LoginButton() {
 
   if (!visible) return <button onClick={show}>login</button>;
 
-  return (
-    <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()} />
-  );
+  return <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={auth()} />;
 }
