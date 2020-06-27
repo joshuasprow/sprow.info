@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { auth, db, Timestamp, newTimestamp } from "./firebase";
 
-interface AppContext {
+interface AppContextType {
   posts: PostDoc[];
   user: UserDoc | null;
 }
@@ -23,16 +23,18 @@ export interface PostDoc {
   uid: string;
 }
 
-const initialContext: AppContext = {
+const initialContext: AppContextType = {
   posts: [],
   user: null,
 };
 
-const Context = createContext(initialContext);
+export const AppContext = createContext(initialContext);
 
-Context.displayName = "AppContext";
+AppContext.displayName = "AppContext";
 
-export const useAppContext = () => useContext(Context);
+export const useAppContext = () => useContext(AppContext);
+
+export const AppConsumer = AppContext.Consumer;
 
 const updateLastLogin = async ({
   lastSignInTime,
@@ -48,10 +50,10 @@ export const AppProvider: FC = (props) => {
   const [firebaseUser, setFirebaseUser] = useState<firebase.User | null>(null);
 
   const [posts, setPosts] = useState<PostDoc[]>([]);
-  const [user, setUser] = useState<AppContext["user"]>(null);
+  const [user, setUser] = useState<AppContextType["user"]>(null);
 
   useEffect(() => {
-    auth().onAuthStateChanged(
+    auth.onAuthStateChanged(
       async (u) => {
         setFirebaseUser(u);
 
@@ -100,5 +102,5 @@ export const AppProvider: FC = (props) => {
     };
   }, [firebaseUser]);
 
-  return <Context.Provider {...props} value={{ posts, user }} />;
+  return <AppContext.Provider {...props} value={{ posts, user }} />;
 };
