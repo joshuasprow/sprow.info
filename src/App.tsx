@@ -1,5 +1,7 @@
 import React from "react";
 import LoginButton from "./components/LoginButton";
+import PostForm from "./components/PostForm";
+import Posts from "./components/Posts";
 import { AppProvider } from "./context";
 
 function App() {
@@ -7,6 +9,8 @@ function App() {
     <AppProvider>
       <div className="App">
         <LoginButton />
+        <PostForm />
+        <Posts />
       </div>
     </AppProvider>
   );

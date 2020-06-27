@@ -1,6 +1,6 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
-import { AppContext } from "../context";
+import { useAppContext } from "../context";
 import firebase, { auth } from "../firebase";
 
 const uiConfig: firebaseui.auth.Config = {
@@ -15,7 +15,7 @@ const uiConfig: firebaseui.auth.Config = {
 };
 
 export default function LoginButton() {
-  const { user } = useContext(AppContext);
+  const { user } = useAppContext();
   const [visible, setVisible] = useState(false);
 
   const signOut = () => auth().signOut();
