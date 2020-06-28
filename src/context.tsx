@@ -16,8 +16,10 @@ interface AppContextType {
 
 type UserRole = undefined | "admin";
 
-interface UserDoc extends Pick<firebase.User, "displayName" | "email"> {
+export interface UserDoc {
   creationTime: Timestamp;
+  displayName: string | null;
+  email: string;
   lastSignInTime: Timestamp;
   role: UserRole;
   userId: string;
@@ -26,6 +28,7 @@ interface UserDoc extends Pick<firebase.User, "displayName" | "email"> {
 export interface PostDoc {
   creationTime: Timestamp;
   message: string;
+  postId: string;
   userId: string;
 }
 

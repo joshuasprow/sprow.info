@@ -11,10 +11,11 @@ import { PostDoc, useAppContext } from "../context";
 import { db, newTimestamp } from "../firebase";
 import "./PostForm.css";
 
-const createPost = async (post: PostDoc) => {
+const createPost = async (post: Omit<PostDoc, "postId">) => {
   const doc = db.collection("posts").doc();
+  const postId = doc.id;
 
-  await doc.set(post);
+  await doc.set({ ...post, postId });
 };
 
 export default function PostForm() {
