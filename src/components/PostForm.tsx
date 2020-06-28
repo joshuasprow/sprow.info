@@ -2,7 +2,8 @@ import {
   Box,
   IconButton,
   IconButtonProps,
-  TextField,
+  Input,
+  InputProps,
   TextFieldProps,
 } from "@material-ui/core";
 import { Send as SendIcon } from "@material-ui/icons";
@@ -45,7 +46,7 @@ export default function PostForm() {
     setMessage("");
   };
 
-  const handleKeyPress: TextFieldProps["onKeyPress"] = async (event) => {
+  const handleKeyPress: InputProps["onKeyPress"] = async (event) => {
     if (event.key !== "Enter") return;
 
     await submit();
@@ -67,7 +68,7 @@ export default function PostForm() {
       position="fixed"
       width="inherit"
     >
-      <TextField
+      <Input
         className="post-form-text-field"
         disabled={textFieldDisabled}
         fullWidth
@@ -76,7 +77,6 @@ export default function PostForm() {
         onSubmit={console.log}
         placeholder="What would you like to post?"
         value={message}
-        variant="filled"
       />
       <IconButton disabled={submitDisabled} onClick={handleSubmit}>
         <SendIcon />
