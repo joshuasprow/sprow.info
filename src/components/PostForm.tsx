@@ -4,7 +4,6 @@ import {
   IconButtonProps,
   TextField,
   TextFieldProps,
-  CircularProgress,
 } from "@material-ui/core";
 import { Send as SendIcon } from "@material-ui/icons";
 import React, { useState } from "react";

@@ -1,32 +1,17 @@
-import React from "react";
-import { useAppContext } from "../context";
-import { PageProps } from "./types";
-import PostForm from "../components/PostForm";
-import { Redirect } from "@reach/router";
 import {
+  Box,
   List,
   ListItem,
   ListItemText,
   Typography,
-  Box,
 } from "@material-ui/core";
+import { Redirect } from "@reach/router";
+import React from "react";
+import PostForm from "../components/PostForm";
+import { useAppContext } from "../context";
+import { formatTimestamp } from "../firebase";
 import "./Posts.css";
-
-const formatTimestamp = (timestamp: firebase.firestore.Timestamp) => {
-  const dateObj = timestamp.toDate();
-
-  const year = dateObj.getFullYear();
-  const month = dateObj.getMonth();
-  const date = dateObj.getDate();
-
-  const hours24 = dateObj.getHours();
-  const hours = hours24 > 12 ? hours24 - 12 : hours24;
-  const amPm = hours24 > 11 ? "am" : "pm";
-
-  const minutes = dateObj.getMinutes();
-
-  return `${year}.${month}.${date} ${hours}:${minutes} ${amPm}`;
-};
+import { PageProps } from "./types";
 
 const Posts: PageProps = () => {
   const { posts, userDoc } = useAppContext();
