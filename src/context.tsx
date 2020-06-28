@@ -1,3 +1,4 @@
+import { navigate } from "@reach/router";
 import React, {
   createContext,
   FC,
@@ -5,16 +6,20 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { auth, db, Timestamp, newTimestamp } from "./firebase";
+import { auth, db, newTimestamp, Timestamp } from "./firebase";
 
 interface AppContextType {
+  authenticating: boolean;
   posts: PostDoc[];
-  user: UserDoc | null;
+  userDoc: UserDoc | null;
 }
+
+type UserRole = undefined | "admin";
 
 interface UserDoc extends Pick<firebase.User, "displayName" | "email" | "uid"> {
   creationTime: Timestamp;
   lastSignInTime: Timestamp;
+  role: UserRole;
 }
 
 export interface PostDoc {
@@ -24,8 +29,9 @@ export interface PostDoc {
 }
 
 const initialContext: AppContextType = {
+  authenticating: true,
   posts: [],
-  user: null,
+  userDoc: null,
 };
 
 export const AppContext = createContext(initialContext);
@@ -49,58 +55,92 @@ const updateLastLogin = async ({
 export const AppProvider: FC = (props) => {
   const [firebaseUser, setFirebaseUser] = useState<firebase.User | null>(null);
 
-  const [posts, setPosts] = useState<PostDoc[]>([]);
-  const [user, setUser] = useState<AppContextType["user"]>(null);
+  const [authenticating, setAuthenticating] = useState(
+    initialContext.authenticating
+  );
+  const [posts, setPosts] = useState<PostDoc[]>(initialContext.posts);
+  const [userDoc, setUserDoc] = useState<AppContextType["userDoc"]>(
+    initialContext.userDoc
+  );
 
   useEffect(() => {
+    console.log("context mounted");
+
+    let userSet = false;
+    let unsubUser: () => void;
+
     auth.onAuthStateChanged(
       async (u) => {
         setFirebaseUser(u);
 
-        if (!u) return;
+        if (!u) {
+          setAuthenticating(false);
+          setUserDoc(null);
+          navigate("/");
+          return;
+        }
 
         await updateLastLogin({
           lastSignInTime: newTimestamp(),
           uid: u.uid,
         });
+
+        unsubUser = db.doc(`users/${u.uid}`).onSnapshot((doc) => {
+          setUserDoc(doc.data() as UserDoc);
+
+          if (userSet === false) {
+            userSet = true;
+            setAuthenticating(false);
+          }
+        });
+
+        console.log("user: subscribe");
       },
       (error) => {
         console.error(error);
       }
     );
+
+    return () => {
+      if (unsubUser) {
+        console.log("user: unsubscribe");
+        unsubUser();
+      }
+    };
   }, []);
 
   useEffect(() => {
     let unsubPosts: () => void;
-    let unsubUser: () => void;
 
-    if (firebaseUser) {
+    if (firebaseUser && userDoc && userDoc.role === "admin") {
       unsubPosts = db
         .collection("posts")
         .orderBy("creationTime", "desc")
         .limit(100)
-        .onSnapshot({ includeMetadataChanges: true }, (snap) => {
+        .onSnapshot({ includeMetadataChanges: true }, (querySnapshot) => {
           const nextPosts: PostDoc[] = [];
 
-          snap.forEach((doc) => {
+          querySnapshot.forEach((doc) => {
             nextPosts.push(doc.data() as PostDoc);
           });
 
           setPosts(nextPosts);
         });
-
-      unsubUser = db
-        .doc(`users/${firebaseUser.uid}`)
-        .onSnapshot({ includeMetadataChanges: true }, (doc) => {
-          setUser(doc.data() as UserDoc);
-        });
+      console.log("posts: subscribe");
     }
 
     return () => {
-      if (unsubPosts) unsubPosts();
-      if (unsubUser) unsubUser();
+      if (unsubPosts) {
+        unsubPosts();
+        console.log("posts: unsubscribe");
+      }
     };
-  }, [firebaseUser]);
+  }, [firebaseUser, userDoc]);
 
-  return <AppContext.Provider {...props} value={{ posts, user }} />;
+  return (
+    <AppContext.Provider
+      {...props}
+      value={{ authenticating, posts, userDoc }}
+    />
+  );
 };

@@ -1,31 +1,35 @@
-import { Link, Router } from "@reach/router";
+import { Link, Router, Redirect } from "@reach/router";
 import React from "react";
 import { AppConsumer, AppProvider } from "./context";
-import Home from "./pages/Home";
+import { auth } from "./firebase";
 import Posts from "./pages/Posts";
-import LoginButton from "./components/LoginButton";
+import SignIn from "./pages/SignIn";
 
 function App() {
+  const signOut = () => auth.signOut();
+
   return (
     <AppProvider>
       <AppConsumer>
-        {({ user }) => (
+        {({ authenticating, userDoc }) => (
           <div className="App">
             <ul>
-              <li>
-                <LoginButton />
-              </li>
+              {userDoc && (
+                <li>
+                  <button onClick={signOut}>sign out</button>
+                </li>
+              )}
               <Link to="/">
-                <li>home</li>
+                <li>sign-in</li>
               </Link>
-              {user && (
+              {userDoc?.role === "admin" && (
                 <Link to="posts">
                   <li>posts</li>
                 </Link>
               )}
             </ul>
             <Router>
-              <Home path="/" />
+              <SignIn path="/" />
               <Posts path="posts" />
             </Router>
           </div>
