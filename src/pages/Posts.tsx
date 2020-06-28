@@ -10,7 +10,7 @@ import { PageProps } from "./types";
 const Posts: PageProps = () => {
   const { posts, userDoc } = useAppContext();
 
-  if (!userDoc || userDoc.role !== "admin") {
+  if (!userDoc || (userDoc.role !== "admin" && userDoc.role !== "user")) {
     return <Redirect noThrow to="/" />;
   }
 

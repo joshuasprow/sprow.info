@@ -1,6 +1,7 @@
 import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
+import { UserDoc } from "./context";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDHYTMDKzXbrbd31gYwv-W8zKUlU9KfEcA",
@@ -38,5 +39,8 @@ export const formatTimestamp = (timestamp: firebase.firestore.Timestamp) => {
 
   return `${month}.${date}.${year} ${hours}:${minutesWithZero} ${amPm}`;
 };
+
+export const isPostViewer = (userDoc: UserDoc) =>
+  userDoc.role === "admin" || userDoc.role === "user";
 
 export default firebase;

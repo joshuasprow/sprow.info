@@ -10,7 +10,7 @@ import { Menu as MenuIcon } from "@material-ui/icons";
 import { Link } from "@reach/router";
 import React, { FC, useState } from "react";
 import { useAppContext } from "../context";
-import { auth } from "../firebase";
+import { auth, isPostViewer } from "../firebase";
 import "./ActionsDrawer.css";
 
 const ActionsDrawer: FC = () => {
@@ -67,7 +67,7 @@ const ActionsDrawer: FC = () => {
                   <ListItemText>Home</ListItemText>
                 </ListItem>
               </Link>
-              {userDoc.role === "admin" && (
+              {isPostViewer(userDoc) && (
                 <Link to="posts">
                   <ListItem button onClick={toggleDrawer(false)}>
                     <ListItemText>Posts</ListItemText>

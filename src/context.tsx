@@ -6,7 +6,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { auth, db, newTimestamp, Timestamp } from "./firebase";
+import { auth, db, newTimestamp, Timestamp, isPostViewer } from "./firebase";
 
 interface AppContextType {
   authenticating: boolean;
@@ -14,7 +14,7 @@ interface AppContextType {
   userDoc: UserDoc | null;
 }
 
-type UserRole = undefined | "admin";
+type UserRole = undefined | "admin" | "user";
 
 export interface UserDoc {
   creationTime: Timestamp;
@@ -111,7 +111,7 @@ export const AppProvider: FC = (props) => {
   useEffect(() => {
     let unsubPosts: () => void;
 
-    if (firebaseUser && userDoc && userDoc.role === "admin") {
+    if (firebaseUser && userDoc && isPostViewer(userDoc)) {
       unsubPosts = db
         .collection("posts")
         .orderBy("creationTime", "desc")
