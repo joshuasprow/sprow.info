@@ -1,4 +1,4 @@
-import { Box, Container } from "@material-ui/core";
+import { Container } from "@material-ui/core";
 import { Router } from "@reach/router";
 import React from "react";
 import "./App.css";
@@ -12,12 +12,10 @@ function App() {
     <AppProvider>
       <Container className="app">
         <ActionsDrawer />
-        <Box className="content">
-          <Router>
-            <SignIn path="/" />
-            <Posts path="posts" />
-          </Router>
-        </Box>
+        <Router>
+          <SignIn path="/" />
+          <Posts path="posts" />
+        </Router>
       </Container>
     </AppProvider>
   );

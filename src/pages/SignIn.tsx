@@ -1,8 +1,9 @@
-import React from "react";
+import { Typography, TypographyProps, Box } from "@material-ui/core";
+import React, { FC } from "react";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
+import { useAppContext } from "../context";
 import firebase, { auth } from "../firebase";
 import { PageProps } from "./types";
-import { useAppContext } from "../context";
 
 const uiConfig: firebaseui.auth.Config = {
   signInFlow: "popup",
@@ -15,27 +16,46 @@ const uiConfig: firebaseui.auth.Config = {
   },
 };
 
+const Wrapper: FC = (props) => (
+  <Box
+    {...props}
+    display="flex"
+    flexDirection="column"
+    alignItems="center"
+    justifyContent="center"
+    height="95vh"
+  />
+);
+
+const H4: FC<Omit<TypographyProps, "variant">> = (props) => (
+  <Typography {...props} variant="h4" />
+);
+
 const SignIn: PageProps = () => {
   const { authenticating, userDoc } = useAppContext();
 
   if (authenticating) {
-    return <p>authenticating...</p>;
+    return (
+      <Wrapper>
+        <H4>authenticating...</H4>
+      </Wrapper>
+    );
   }
 
   if (userDoc) {
     return (
-      <>
-        <h1>this is you</h1>
+      <Wrapper>
+        <H4>this is you</H4>
         <pre>{JSON.stringify(userDoc, null, 2)}</pre>
-      </>
+      </Wrapper>
     );
   }
 
   return (
-    <>
-      <h1>please sign in to continue</h1>
+    <Wrapper>
+      <H4>please sign in to continue</H4>
       <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={auth} />
-    </>
+    </Wrapper>
   );
 };
 

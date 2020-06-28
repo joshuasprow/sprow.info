@@ -1,4 +1,5 @@
 import {
+  Divider,
   IconButton,
   List,
   ListItem,
@@ -8,9 +9,9 @@ import {
 import { Menu as MenuIcon } from "@material-ui/icons";
 import { Link } from "@reach/router";
 import React, { FC, useState } from "react";
+import { useAppContext } from "../context";
 import { auth } from "../firebase";
 import "./ActionsDrawer.css";
-import { useAppContext } from "../context";
 
 const ActionsDrawer: FC = () => {
   const { userDoc } = useAppContext();
@@ -60,20 +61,28 @@ const ActionsDrawer: FC = () => {
               <ListItem button>
                 <ListItemText onClick={signOut}>Sign Out</ListItemText>
               </ListItem>
+              <Divider />
+              <Link to="/">
+                <ListItem button onClick={toggleDrawer(false)}>
+                  <ListItemText>Home</ListItemText>
+                </ListItem>
+              </Link>
+              {userDoc.role === "admin" && (
+                <Link to="posts">
+                  <ListItem button onClick={toggleDrawer(false)}>
+                    <ListItemText>Posts</ListItemText>
+                  </ListItem>
+                </Link>
+              )}
             </>
           ) : (
-            <Link to="/">
-              <ListItem button onClick={toggleDrawer(false)}>
-                <ListItemText>Sign In</ListItemText>
-              </ListItem>
-            </Link>
-          )}
-          {userDoc?.role === "admin" && (
-            <Link to="posts">
-              <ListItem button>
-                <ListItemText>Posts</ListItemText>
-              </ListItem>
-            </Link>
+            <>
+              <Link to="/">
+                <ListItem button onClick={toggleDrawer(false)}>
+                  <ListItemText>Home</ListItemText>
+                </ListItem>
+              </Link>
+            </>
           )}
         </List>
       </SwipeableDrawer>
