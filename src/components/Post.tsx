@@ -98,6 +98,9 @@ const Post: FC<PostProps> = ({ post }) => {
   const { userDoc } = useAppContext();
   const [postUser, setPostUser] = useState("...");
 
+  const canUpdate =
+    userDoc && (userDoc.userId === post.userId || userDoc.role === "admin");
+
   const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
@@ -118,7 +121,7 @@ const Post: FC<PostProps> = ({ post }) => {
         <Typography variant="body1">{post.message}</Typography>
       </ListItemText>
       <ListItemSecondaryAction>
-        {userDoc && userDoc.userId === post.userId && (
+        {canUpdate && (
           <>
             <Tooltip title="Edit">
               <IconButton disabled={updating} size="small">
