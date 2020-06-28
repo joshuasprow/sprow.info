@@ -34,13 +34,11 @@ const initialContext: AppContextType = {
   userDoc: null,
 };
 
-export const AppContext = createContext(initialContext);
+const AppContext = createContext(initialContext);
 
 AppContext.displayName = "AppContext";
 
 export const useAppContext = () => useContext(AppContext);
-
-export const AppConsumer = AppContext.Consumer;
 
 const updateLastLogin = async ({
   lastSignInTime,
