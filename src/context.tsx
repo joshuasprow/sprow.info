@@ -89,6 +89,7 @@ export const AppProvider: FC = (props) => {
           if (userSet === false) {
             userSet = true;
             setAuthenticating(false);
+            navigate("posts");
           }
         });
 
