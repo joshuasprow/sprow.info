@@ -1,9 +1,9 @@
+import { StylesProvider } from "@material-ui/core/styles";
+import "fontsource-roboto";
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
-import "fontsource-roboto";
-import { StylesProvider } from "@material-ui/core/styles";
 
 ReactDOM.render(
   <React.StrictMode>

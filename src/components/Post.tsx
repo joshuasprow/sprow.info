@@ -9,11 +9,13 @@ import React, { FC, useEffect, useState } from "react";
 import { PostDoc, UserDoc } from "../context";
 import { db, formatTimestamp } from "../firebase";
 
-const getPostUser = async (userId: string): Promise<UserDoc> => {
+const getPostUser = async (userId: string) => {
   const doc = await db.doc(`users/${userId}`).get();
 
   return doc.data() as UserDoc;
 };
+
+const deletePost = async (postId: string) => db.doc(`posts/${postId}`).delete();
 
 const Post: FC<{ post: PostDoc }> = ({ post }) => {
   const [postUser, setPostUser] = useState("...");

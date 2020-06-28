@@ -5,8 +5,14 @@ import {
   ListItem,
   ListItemText,
   SwipeableDrawer,
+  Avatar,
+  ListItemAvatar,
 } from "@material-ui/core";
-import { Menu as MenuIcon } from "@material-ui/icons";
+import {
+  Forum as ForumIcon,
+  Menu as MenuIcon,
+  Home as HomeIcon,
+} from "@material-ui/icons";
 import { Link } from "@reach/router";
 import React, { FC, useState } from "react";
 import { useAppContext } from "../context";
@@ -62,17 +68,33 @@ const ActionsDrawer: FC = () => {
                 <ListItemText onClick={signOut}>Sign Out</ListItemText>
               </ListItem>
               <Divider />
-              <Link to="/">
-                <ListItem button onClick={toggleDrawer(false)}>
-                  <ListItemText>Home</ListItemText>
-                </ListItem>
-              </Link>
+              <ListItem
+                button
+                component={Link}
+                onClick={toggleDrawer(false)}
+                to="/"
+              >
+                <ListItemAvatar>
+                  <Avatar>
+                    <HomeIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText>Home</ListItemText>
+              </ListItem>
               {isPostViewer(userDoc) && (
-                <Link to="posts">
-                  <ListItem button onClick={toggleDrawer(false)}>
-                    <ListItemText>Posts</ListItemText>
-                  </ListItem>
-                </Link>
+                <ListItem
+                  button
+                  component={Link}
+                  onClick={toggleDrawer(false)}
+                  to="posts"
+                >
+                  <ListItemAvatar>
+                    <Avatar>
+                      <ForumIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText>Posts</ListItemText>
+                </ListItem>
               )}
             </>
           ) : (
