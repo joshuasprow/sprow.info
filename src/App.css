@@ -4,6 +4,7 @@ body {
 
 .app {
     position: relative;
+    padding-right: 60px;
 }
 
 .app .content {

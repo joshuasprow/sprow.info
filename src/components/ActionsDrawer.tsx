@@ -64,6 +64,7 @@ const ActionsDrawer: FC = () => {
                   {`Hi, ${userDoc.displayName || userDoc.email}`}
                 </ListItemText>
               </ListItem>
+              <Divider />
               <ListItem button>
                 <ListItemText onClick={signOut}>Sign Out</ListItemText>
               </ListItem>

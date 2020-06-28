@@ -29,6 +29,7 @@ export interface PostDoc {
   creationTime: Timestamp;
   message: string;
   postId: string;
+  updateTime: null | Timestamp;
   userId: string;
 }
 

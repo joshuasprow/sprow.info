@@ -39,6 +39,7 @@ export default function PostForm() {
       creationTime: newTimestamp(),
       message,
       userId: userDoc.userId,
+      updateTime: null,
     });
 
     setCreating(false);
@@ -72,13 +73,19 @@ export default function PostForm() {
         className="post-form-text-field"
         disabled={textFieldDisabled}
         fullWidth
+        multiline
         onChange={handleChange}
         onKeyPress={handleKeyPress}
         onSubmit={console.log}
         placeholder="What would you like to post?"
+        rowsMax={4}
         value={message}
       />
-      <IconButton disabled={submitDisabled} onClick={handleSubmit}>
+      <IconButton
+        color="primary"
+        disabled={submitDisabled}
+        onClick={handleSubmit}
+      >
         <SendIcon />
       </IconButton>
     </Box>
