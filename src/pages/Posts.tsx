@@ -3,7 +3,14 @@ import { useAppContext } from "../context";
 import { PageProps } from "./types";
 import PostForm from "../components/PostForm";
 import { Redirect } from "@reach/router";
-import { List, ListItem, ListItemText, Typography } from "@material-ui/core";
+import {
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+  Box,
+} from "@material-ui/core";
+import "./Posts.css";
 
 const formatTimestamp = (timestamp: firebase.firestore.Timestamp) => {
   const dateObj = timestamp.toDate();
@@ -29,9 +36,14 @@ const Posts: PageProps = () => {
   }
 
   return (
-    <>
-      <PostForm />
-      <List>
+    <Box
+      height="100vh"
+      margin="0 auto"
+      maxWidth="100%"
+      position="relative"
+      width="40rem"
+    >
+      <List className="posts-list">
         {posts.map((post, index) => (
           <ListItem key={index}>
             <ListItemText>
@@ -43,7 +55,8 @@ const Posts: PageProps = () => {
           </ListItem>
         ))}
       </List>
-    </>
+      <PostForm />
+    </Box>
   );
 };
 
