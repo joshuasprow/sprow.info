@@ -16,16 +16,17 @@ interface AppContextType {
 
 type UserRole = undefined | "admin";
 
-interface UserDoc extends Pick<firebase.User, "displayName" | "email" | "uid"> {
+interface UserDoc extends Pick<firebase.User, "displayName" | "email"> {
   creationTime: Timestamp;
   lastSignInTime: Timestamp;
   role: UserRole;
+  userId: string;
 }
 
 export interface PostDoc {
   creationTime: Timestamp;
   message: string;
-  uid: string;
+  userId: string;
 }
 
 const initialContext: AppContextType = {
@@ -42,11 +43,11 @@ export const useAppContext = () => useContext(AppContext);
 
 const updateLastLogin = async ({
   lastSignInTime,
-  uid,
-}: Pick<UserDoc, "lastSignInTime" | "uid">) =>
+  userId,
+}: Pick<UserDoc, "lastSignInTime" | "userId">) =>
   db
     .collection("users")
-    .doc(uid)
+    .doc(userId)
     .update({ lastSignInTime })
     .catch(console.error);
 
@@ -64,41 +65,37 @@ export const AppProvider: FC = (props) => {
   useEffect(() => {
     console.log("context mounted");
 
-    let userSet = false;
     let unsubUser: () => void;
 
-    auth.onAuthStateChanged(
-      async (u) => {
-        setFirebaseUser(u);
+    auth.onAuthStateChanged(async (u) => {
+      setFirebaseUser(u);
 
-        if (!u) {
-          setAuthenticating(false);
-          setUserDoc(null);
-          navigate("/");
-          return;
-        }
-
-        await updateLastLogin({
-          lastSignInTime: newTimestamp(),
-          uid: u.uid,
-        });
-
-        unsubUser = db.doc(`users/${u.uid}`).onSnapshot((doc) => {
-          setUserDoc(doc.data() as UserDoc);
-
-          if (userSet === false) {
-            userSet = true;
-            setAuthenticating(false);
-            navigate("posts");
-          }
-        });
-
-        console.log("user: subscribe");
-      },
-      (error) => {
-        console.error(error);
+      if (!u) {
+        setAuthenticating(false);
+        setUserDoc(null);
+        navigate("/");
+        return;
       }
-    );
+
+      await updateLastLogin({
+        lastSignInTime: newTimestamp(),
+        userId: u.uid,
+      });
+
+      const ref = db.doc(`users/${u.uid}`);
+      const doc = (await ref.get()).data();
+
+      setUserDoc(doc as UserDoc);
+      setAuthenticating(false);
+
+      navigate("posts");
+
+      unsubUser = ref.onSnapshot((doc) => {
+        setUserDoc(doc.data() as UserDoc);
+      });
+
+      console.log("user: subscribe");
+    });
 
     return () => {
       if (unsubUser) {

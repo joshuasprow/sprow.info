@@ -36,7 +36,7 @@ export default function PostForm() {
     await createPost({
       creationTime: newTimestamp(),
       message,
-      uid: userDoc.uid,
+      userId: userDoc.userId,
     });
 
     setCreating(false);

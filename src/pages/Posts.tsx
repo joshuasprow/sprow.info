@@ -1,15 +1,9 @@
-import {
-  Box,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-} from "@material-ui/core";
+import { Box, List } from "@material-ui/core";
 import { Redirect } from "@reach/router";
 import React from "react";
+import Post from "../components/Post";
 import PostForm from "../components/PostForm";
 import { useAppContext } from "../context";
-import { formatTimestamp } from "../firebase";
 import "./Posts.css";
 import { PageProps } from "./types";
 
@@ -30,14 +24,7 @@ const Posts: PageProps = () => {
     >
       <List className="posts-list">
         {posts.map((post, index) => (
-          <ListItem key={index}>
-            <ListItemText>
-              <Typography variant="caption">
-                {formatTimestamp(post.creationTime)}
-              </Typography>
-              <Typography variant="body1">{post.message}</Typography>
-            </ListItemText>
-          </ListItem>
+          <Post key={index} post={post} />
         ))}
       </List>
       <PostForm />
