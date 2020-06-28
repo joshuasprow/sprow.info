@@ -9,7 +9,7 @@ const createPost = async (post: PostDoc) => {
 };
 
 export default function PostForm() {
-  const { user } = useAppContext();
+  const { userDoc: user } = useAppContext();
   const [message, setMessage] = useState("");
   const [creating, setCreating] = useState(false);
 

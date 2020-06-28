@@ -5,15 +5,21 @@ admin.initializeApp();
 
 const db = admin.firestore();
 
+const stringToTimestamp = (str: string) =>
+  admin.firestore.Timestamp.fromDate(new Date(str));
+
 exports.onUserCreate = functions.auth.user().onCreate(async (user) => {
   try {
-    await db.collection("users").doc(user.uid).set({
-      creationTime: user.metadata.creationTime,
-      displayName: user.displayName,
-      email: user.email,
-      lastSignInTime: user.metadata.lastSignInTime,
-      uid: user.uid,
-    });
+    await db
+      .collection("users")
+      .doc(user.uid)
+      .set({
+        creationTime: stringToTimestamp(user.metadata.creationTime),
+        displayName: user.displayName,
+        email: user.email,
+        lastSignInTime: stringToTimestamp(user.metadata.lastSignInTime),
+        uid: user.uid,
+      });
   } catch (error) {
     console.error(error);
   }
