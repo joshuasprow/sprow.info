@@ -10,6 +10,8 @@ const stringToTimestamp = (str: string) =>
 
 exports.onUserCreate = functions.auth.user().onCreate(async (user) => {
   try {
+    if (!user.email) throw new Error(`user ${user.uid} has no email`);
+
     await db
       .collection("users")
       .doc(user.uid)
@@ -18,7 +20,7 @@ exports.onUserCreate = functions.auth.user().onCreate(async (user) => {
         displayName: user.displayName,
         email: user.email,
         lastSignInTime: stringToTimestamp(user.metadata.lastSignInTime),
-        uid: user.uid,
+        userId: user.uid,
       });
   } catch (error) {
     console.error(error);

@@ -1,25 +1,34 @@
-import React from "react";
-import { useAppContext } from "../context";
-import { PageProps } from "./types";
-import PostForm from "../components/PostForm";
+import { Box, List } from "@material-ui/core";
 import { Redirect } from "@reach/router";
+import React from "react";
+import Post from "../components/Post";
+import PostForm from "../components/PostForm";
+import { useAppContext } from "../context";
+import "./Posts.css";
+import { PageProps } from "./types";
 
 const Posts: PageProps = () => {
   const { posts, userDoc } = useAppContext();
 
-  if (!userDoc || userDoc.role !== "admin") {
+  if (!userDoc || (userDoc.role !== "admin" && userDoc.role !== "user")) {
     return <Redirect noThrow to="/" />;
   }
 
   return (
-    <div>
-      <PostForm />
-      <ul>
+    <Box
+      height="100vh"
+      margin="0 auto"
+      maxWidth="100%"
+      position="relative"
+      width="40rem"
+    >
+      <List className="posts-list">
         {posts.map((post, index) => (
-          <li key={index}>{post.message}</li>
+          <Post key={index} post={post} />
         ))}
-      </ul>
-    </div>
+      </List>
+      <PostForm />
+    </Box>
   );
 };
 

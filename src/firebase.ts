@@ -1,8 +1,7 @@
 import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
-
-export type Timestamp = firebase.firestore.Timestamp;
+import { UserDoc } from "./context";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDHYTMDKzXbrbd31gYwv-W8zKUlU9KfEcA",
@@ -20,6 +19,28 @@ firebase.initializeApp(firebaseConfig);
 export const auth = firebase.auth();
 export const db = firebase.firestore();
 
+export type Timestamp = firebase.firestore.Timestamp;
+
 export const newTimestamp = () => firebase.firestore.Timestamp.now();
+
+export const formatTimestamp = (timestamp: firebase.firestore.Timestamp) => {
+  const dateObj = timestamp.toDate();
+
+  const year = dateObj.getFullYear();
+  const month = dateObj.getMonth();
+  const date = dateObj.getDate();
+
+  const hours24 = dateObj.getHours();
+  const hours = hours24 > 12 ? hours24 - 12 : hours24;
+  const amPm = hours24 > 11 ? "pm" : "am";
+
+  const minutes = dateObj.getMinutes();
+  const minutesWithZero = minutes < 10 ? `${0}${minutes}` : minutes;
+
+  return `${month}.${date}.${year} ${hours}:${minutesWithZero} ${amPm}`;
+};
+
+export const isPostViewer = (userDoc: UserDoc) =>
+  userDoc.role === "admin" || userDoc.role === "user";
 
 export default firebase;

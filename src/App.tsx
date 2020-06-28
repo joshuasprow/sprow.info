@@ -1,41 +1,40 @@
-import { Link, Router, Redirect } from "@reach/router";
+import {
+  Container,
+  createMuiTheme,
+  ThemeProvider,
+  useMediaQuery,
+  CssBaseline,
+} from "@material-ui/core";
+import { Router } from "@reach/router";
 import React from "react";
-import { AppConsumer, AppProvider } from "./context";
-import { auth } from "./firebase";
+import "./App.css";
+import ActionsDrawer from "./components/ActionsDrawer";
+import { AppProvider } from "./context";
 import Posts from "./pages/Posts";
 import SignIn from "./pages/SignIn";
 
 function App() {
-  const signOut = () => auth.signOut();
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+
+  const theme = React.useMemo(
+    () =>
+      createMuiTheme({ palette: { type: prefersDarkMode ? "dark" : "light" } }),
+    [prefersDarkMode]
+  );
 
   return (
-    <AppProvider>
-      <AppConsumer>
-        {({ authenticating, userDoc }) => (
-          <div className="App">
-            <ul>
-              {userDoc && (
-                <li>
-                  <button onClick={signOut}>sign out</button>
-                </li>
-              )}
-              <Link to="/">
-                <li>sign-in</li>
-              </Link>
-              {userDoc?.role === "admin" && (
-                <Link to="posts">
-                  <li>posts</li>
-                </Link>
-              )}
-            </ul>
-            <Router>
-              <SignIn path="/" />
-              <Posts path="posts" />
-            </Router>
-          </div>
-        )}
-      </AppConsumer>
-    </AppProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AppProvider>
+        <Container className="app">
+          <ActionsDrawer />
+          <Router>
+            <SignIn path="/" />
+            <Posts path="posts" />
+          </Router>
+        </Container>
+      </AppProvider>
+    </ThemeProvider>
   );
 }
 

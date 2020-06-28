@@ -6,7 +6,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { auth, db, newTimestamp, Timestamp } from "./firebase";
+import { auth, db, newTimestamp, Timestamp, isPostViewer } from "./firebase";
 
 interface AppContextType {
   authenticating: boolean;
@@ -14,18 +14,23 @@ interface AppContextType {
   userDoc: UserDoc | null;
 }
 
-type UserRole = undefined | "admin";
+type UserRole = undefined | "admin" | "user";
 
-interface UserDoc extends Pick<firebase.User, "displayName" | "email" | "uid"> {
+export interface UserDoc {
   creationTime: Timestamp;
+  displayName: string | null;
+  email: string;
   lastSignInTime: Timestamp;
   role: UserRole;
+  userId: string;
 }
 
 export interface PostDoc {
   creationTime: Timestamp;
   message: string;
-  uid: string;
+  postId: string;
+  updateTime: null | Timestamp;
+  userId: string;
 }
 
 const initialContext: AppContextType = {
@@ -34,21 +39,19 @@ const initialContext: AppContextType = {
   userDoc: null,
 };
 
-export const AppContext = createContext(initialContext);
+const AppContext = createContext(initialContext);
 
 AppContext.displayName = "AppContext";
 
 export const useAppContext = () => useContext(AppContext);
 
-export const AppConsumer = AppContext.Consumer;
-
 const updateLastLogin = async ({
   lastSignInTime,
-  uid,
-}: Pick<UserDoc, "lastSignInTime" | "uid">) =>
+  userId,
+}: Pick<UserDoc, "lastSignInTime" | "userId">) =>
   db
     .collection("users")
-    .doc(uid)
+    .doc(userId)
     .update({ lastSignInTime })
     .catch(console.error);
 
@@ -66,40 +69,37 @@ export const AppProvider: FC = (props) => {
   useEffect(() => {
     console.log("context mounted");
 
-    let userSet = false;
     let unsubUser: () => void;
 
-    auth.onAuthStateChanged(
-      async (u) => {
-        setFirebaseUser(u);
+    auth.onAuthStateChanged(async (u) => {
+      setFirebaseUser(u);
 
-        if (!u) {
-          setAuthenticating(false);
-          setUserDoc(null);
-          navigate("/");
-          return;
-        }
-
-        await updateLastLogin({
-          lastSignInTime: newTimestamp(),
-          uid: u.uid,
-        });
-
-        unsubUser = db.doc(`users/${u.uid}`).onSnapshot((doc) => {
-          setUserDoc(doc.data() as UserDoc);
-
-          if (userSet === false) {
-            userSet = true;
-            setAuthenticating(false);
-          }
-        });
-
-        console.log("user: subscribe");
-      },
-      (error) => {
-        console.error(error);
+      if (!u) {
+        setAuthenticating(false);
+        setUserDoc(null);
+        navigate("/");
+        return;
       }
-    );
+
+      await updateLastLogin({
+        lastSignInTime: newTimestamp(),
+        userId: u.uid,
+      });
+
+      const ref = db.doc(`users/${u.uid}`);
+      const doc = (await ref.get()).data();
+
+      setUserDoc(doc as UserDoc);
+      setAuthenticating(false);
+
+      navigate("posts");
+
+      unsubUser = ref.onSnapshot((doc) => {
+        setUserDoc(doc.data() as UserDoc);
+      });
+
+      console.log("user: subscribe");
+    });
 
     return () => {
       if (unsubUser) {
@@ -112,7 +112,7 @@ export const AppProvider: FC = (props) => {
   useEffect(() => {
     let unsubPosts: () => void;
 
-    if (firebaseUser && userDoc && userDoc.role === "admin") {
+    if (firebaseUser && userDoc && isPostViewer(userDoc)) {
       unsubPosts = db
         .collection("posts")
         .orderBy("creationTime", "desc")
