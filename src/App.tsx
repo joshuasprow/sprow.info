@@ -1,17 +1,17 @@
 import {
   Container,
   createMuiTheme,
+  CssBaseline,
   ThemeProvider,
   useMediaQuery,
-  CssBaseline,
 } from "@material-ui/core";
 import { Router } from "@reach/router";
 import React from "react";
 import "./App.css";
 import ActionsDrawer from "./components/ActionsDrawer";
-import { AppProvider } from "./context";
 import Posts from "./pages/Posts";
 import SignIn from "./pages/SignIn";
+import { useAppContext } from "./context";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -22,18 +22,18 @@ function App() {
     [prefersDarkMode]
   );
 
+  const { isSmallScreen } = useAppContext();
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AppProvider>
-        <Container className="app">
-          <ActionsDrawer />
-          <Router>
-            <SignIn path="/" />
-            <Posts path="posts" />
-          </Router>
-        </Container>
-      </AppProvider>
+      <Container className="app" disableGutters={isSmallScreen}>
+        <Router>
+          <SignIn path="/" />
+          <Posts path="posts" />
+        </Router>
+        <ActionsDrawer />
+      </Container>
     </ThemeProvider>
   );
 }

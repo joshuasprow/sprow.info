@@ -3,12 +3,15 @@ import "fontsource-roboto";
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
+import { AppProvider } from "./context";
 import * as serviceWorker from "./serviceWorker";
 
 ReactDOM.render(
   <React.StrictMode>
     <StylesProvider injectFirst>
-      <App />
+      <AppProvider>
+        <App />
+      </AppProvider>
     </StylesProvider>
   </React.StrictMode>,
   document.getElementById("root")

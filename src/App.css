@@ -1,14 +1,13 @@
 body {
-    margin: 0;
+  margin: 0;
 }
 
 .app {
-    position: relative;
-    padding-right: 60px;
+  position: relative;
 }
 
 .app .content {
-    width: 32rem;
-    max-width: 100vh;
-    margin: 0 auto;
+  width: 32rem;
+  max-width: 100vh;
+  margin: 0 auto;
 }

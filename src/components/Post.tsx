@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  Divider,
   IconButton,
   IconButtonProps,
   Input,
@@ -166,9 +167,10 @@ const DeleteButton: FC<PostButtonProps> = ({ post, setUpdating, updating }) => {
 };
 
 const Post: FC<PostProps> = ({ post }) => {
-  const { userDoc } = useAppContext();
-  const [postUser, setPostUser] = useState("...");
+  const { isSmallScreen, userDoc } = useAppContext();
+  const isLargeScreen = !isSmallScreen;
 
+  const [postUser, setPostUser] = useState("...");
   const canUpdate =
     userDoc && (userDoc.userId === post.userId || userDoc.role === "admin");
 
@@ -181,35 +183,71 @@ const Post: FC<PostProps> = ({ post }) => {
   }, [post.userId]);
 
   return (
-    <ListItem>
-      <ListItemAvatar>
-        <Avatar>{postUser[0]}</Avatar>
-      </ListItemAvatar>
-      <ListItemText>
-        <Typography variant="caption">
-          {`${formatTimestamp(post.creationTime)} - ${postUser}${
-            post.updateTime ? " (edited)" : ""
-          }`}
-        </Typography>
-        <Typography variant="body1">{post.message}</Typography>
-      </ListItemText>
-      <ListItemSecondaryAction>
-        {canUpdate && (
-          <>
-            <EditButton
-              post={post}
-              setUpdating={setUpdating}
-              updating={updating}
-            />
-            <DeleteButton
-              post={post}
-              setUpdating={setUpdating}
-              updating={updating}
-            />
-          </>
+    <>
+      <ListItem>
+        {isLargeScreen && (
+          <ListItemAvatar>
+            <Avatar>{postUser[0]}</Avatar>
+          </ListItemAvatar>
         )}
-      </ListItemSecondaryAction>
-    </ListItem>
+        <ListItemText>
+          {isSmallScreen ? (
+            <>
+              <Box>
+                <Typography variant="subtitle1">{postUser}</Typography>
+              </Box>
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                marginRight="3rem"
+              >
+                <Typography variant="caption">
+                  {formatTimestamp(post.creationTime)}
+                </Typography>
+                {canUpdate && (
+                  <Box>
+                    <EditButton
+                      post={post}
+                      setUpdating={setUpdating}
+                      updating={updating}
+                    />
+                    <DeleteButton
+                      post={post}
+                      setUpdating={setUpdating}
+                      updating={updating}
+                    />
+                  </Box>
+                )}
+              </Box>
+            </>
+          ) : (
+            <Typography variant="caption">
+              {formatTimestamp(post.creationTime)}
+            </Typography>
+          )}
+          <Typography variant="body1">{post.message}</Typography>
+        </ListItemText>
+        {isLargeScreen && (
+          <ListItemSecondaryAction>
+            {canUpdate && (
+              <>
+                <EditButton
+                  post={post}
+                  setUpdating={setUpdating}
+                  updating={updating}
+                />
+                <DeleteButton
+                  post={post}
+                  setUpdating={setUpdating}
+                  updating={updating}
+                />
+              </>
+            )}
+          </ListItemSecondaryAction>
+        )}
+      </ListItem>
+      {isSmallScreen && <Divider />}
+    </>
   );
 };
 
