@@ -1,3 +1,4 @@
+import { useMediaQuery, useTheme } from "@material-ui/core";
 import { navigate } from "@reach/router";
 import React, {
   createContext,
@@ -6,10 +7,11 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { auth, db, newTimestamp, Timestamp, isPostViewer } from "./firebase";
+import { auth, db, isPostViewer, newTimestamp, Timestamp } from "./firebase";
 
 interface AppContextType {
   authenticating: boolean;
+  isSmallScreen: boolean;
   posts: PostDoc[];
   userDoc: UserDoc | null;
 }
@@ -35,6 +37,7 @@ export interface PostDoc {
 
 const initialContext: AppContextType = {
   authenticating: true,
+  isSmallScreen: false,
   posts: [],
   userDoc: null,
 };
@@ -56,6 +59,9 @@ const updateLastLogin = async ({
     .catch(console.error);
 
 export const AppProvider: FC = (props) => {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [firebaseUser, setFirebaseUser] = useState<firebase.User | null>(null);
 
   const [authenticating, setAuthenticating] = useState(
@@ -140,7 +146,7 @@ export const AppProvider: FC = (props) => {
   return (
     <AppContext.Provider
       {...props}
-      value={{ authenticating, posts, userDoc }}
+      value={{ authenticating, isSmallScreen, posts, userDoc }}
     />
   );
 };

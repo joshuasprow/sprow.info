@@ -1,13 +1,18 @@
 import {
   Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  Fab,
   IconButton,
-  IconButtonProps,
-  Input,
   InputProps,
+  TextField,
   TextFieldProps,
+  useTheme,
 } from "@material-ui/core";
-import { Send as SendIcon } from "@material-ui/icons";
-import React, { useState } from "react";
+import { Add as AddIcon, Send as SendIcon } from "@material-ui/icons";
+import React, { FC, useState } from "react";
 import { PostDoc, useAppContext } from "../context";
 import { db, newTimestamp } from "../firebase";
 import "./PostForm.css";
@@ -19,8 +24,109 @@ const createPost = async (post: Omit<PostDoc, "postId">) => {
   await doc.set({ ...post, postId });
 };
 
+interface FormProps {
+  handleChange: TextFieldProps["onChange"];
+  handleKeyPress: TextFieldProps["onKeyPress"];
+  message: string;
+  submit: () => Promise<void>;
+  submitDisabled: boolean;
+  textFieldDisabled: boolean;
+}
+
+const BottomForm: FC<FormProps> = ({
+  handleChange,
+  handleKeyPress,
+  message,
+  submit,
+  submitDisabled,
+  textFieldDisabled,
+}) => {
+  const theme = useTheme();
+
+  return (
+    <Box
+      className="post-form__bottom"
+      style={{ backgroundColor: theme.palette.background.default }}
+    >
+      <TextField
+        InputProps={{
+          endAdornment: (
+            <IconButton
+              color="primary"
+              disabled={submitDisabled}
+              onClick={submit}
+            >
+              <SendIcon />
+            </IconButton>
+          ),
+        }}
+        disabled={textFieldDisabled}
+        fullWidth
+        hiddenLabel
+        multiline
+        onChange={handleChange}
+        onKeyPress={handleKeyPress}
+        placeholder="What would you like to post?"
+        rowsMax={4}
+        value={message}
+        variant="filled"
+      />
+    </Box>
+  );
+};
+
+const ButtonForm: FC<FormProps> = ({
+  handleChange,
+  handleKeyPress,
+  message,
+  submit,
+  submitDisabled,
+  textFieldDisabled,
+}) => {
+  const [open, setOpen] = useState(false);
+
+  const openDialog = () => setOpen(true);
+  const closeDialog = () => setOpen(false);
+
+  const handleSubmit = async () => {
+    await submit();
+    closeDialog();
+  };
+
+  return (
+    <>
+      <Fab className="post-form__button" color="primary" onClick={openDialog}>
+        <AddIcon />
+      </Fab>
+      <Dialog fullWidth onClose={closeDialog} open={open}>
+        <DialogContent>
+          <TextField
+            disabled={textFieldDisabled}
+            fullWidth
+            hiddenLabel
+            multiline
+            onChange={handleChange}
+            onKeyPress={handleKeyPress}
+            placeholder="What would you like to post?"
+            rows={6}
+            value={message}
+            variant="outlined"
+          />
+        </DialogContent>
+        <DialogActions>
+          <IconButton color="primary" onClick={handleSubmit}>
+            <SendIcon />
+          </IconButton>
+          <Button onClick={closeDialog}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+};
+
 export default function PostForm() {
-  const { userDoc } = useAppContext();
+  const { isSmallScreen, userDoc } = useAppContext();
+
   const [message, setMessage] = useState("");
   const [creating, setCreating] = useState(false);
 
@@ -53,41 +159,27 @@ export default function PostForm() {
     await submit();
   };
 
-  const handleSubmit: IconButtonProps["onClick"] = async (event) => {
-    if (!userDoc) return;
-
-    event.preventDefault();
-
-    await submit();
-  };
+  if (isSmallScreen) {
+    return (
+      <ButtonForm
+        handleChange={handleChange}
+        handleKeyPress={handleKeyPress}
+        message={message}
+        submit={submit}
+        submitDisabled={submitDisabled}
+        textFieldDisabled={textFieldDisabled}
+      />
+    );
+  }
 
   return (
-    <Box
-      className="post-form"
-      display="flex"
-      bottom={0}
-      position="fixed"
-      width="inherit"
-    >
-      <Input
-        className="post-form-text-field"
-        disabled={textFieldDisabled}
-        fullWidth
-        multiline
-        onChange={handleChange}
-        onKeyPress={handleKeyPress}
-        onSubmit={console.log}
-        placeholder="What would you like to post?"
-        rowsMax={4}
-        value={message}
-      />
-      <IconButton
-        color="primary"
-        disabled={submitDisabled}
-        onClick={handleSubmit}
-      >
-        <SendIcon />
-      </IconButton>
-    </Box>
+    <BottomForm
+      handleChange={handleChange}
+      handleKeyPress={handleKeyPress}
+      message={message}
+      submit={submit}
+      submitDisabled={submitDisabled}
+      textFieldDisabled={textFieldDisabled}
+    />
   );
 }

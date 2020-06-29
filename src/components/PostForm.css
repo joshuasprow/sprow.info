@@ -1,7 +1,16 @@
-/* .post-form {
-    background: #fff;
-} */
+.post-form__bottom {
+  background-color: inherit;
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%);
+  max-width: inherit;
+  width: inherit;
+}
 
-.post-form-text-field {
-    margin-right: 0.5rem;
+.post-form__button {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
 }
