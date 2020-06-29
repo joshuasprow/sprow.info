@@ -9,13 +9,13 @@ import {
   Divider,
   IconButton,
   IconButtonProps,
-  Input,
-  InputProps,
   ListItem,
   ListItemAvatar,
   ListItemSecondaryAction,
   ListItemText,
   Popover,
+  TextField,
+  TextFieldProps,
   Typography,
 } from "@material-ui/core";
 import { Delete as DeleteIcon, Edit as EditIcon } from "@material-ui/icons";
@@ -48,7 +48,7 @@ const EditButton: FC<PostButtonProps> = ({ post, setUpdating, updating }) => {
   const closeDialog = () => disabled || setOpen(false);
   const openDialog = () => disabled || setOpen(true);
 
-  const handleChange: InputProps["onChange"] = (event) =>
+  const handleChange: TextFieldProps["onChange"] = (event) =>
     setMessage(event.currentTarget.value);
 
   const updatePost = async () => {
@@ -70,17 +70,18 @@ const EditButton: FC<PostButtonProps> = ({ post, setUpdating, updating }) => {
       <IconButton disabled={updating} onClick={openDialog} size="small">
         <EditIcon fontSize="inherit" />
       </IconButton>
-      <Dialog onClose={closeDialog} open={open}>
+      <Dialog fullWidth onClose={closeDialog} open={open}>
         <DialogContent className="edit-dialog-content">
           <Typography variant="caption">
             {formatTimestamp(post.creationTime)}
           </Typography>
-          <Input
+          <TextField
             fullWidth
             multiline
             onChange={handleChange}
-            rowsMax={4}
+            rows={4}
             value={message}
+            variant="outlined"
           />
         </DialogContent>
         <DialogActions>
@@ -221,9 +222,12 @@ const Post: FC<PostProps> = ({ post }) => {
               </Box>
             </>
           ) : (
-            <Typography variant="caption">
-              {formatTimestamp(post.creationTime)}
-            </Typography>
+            <>
+              <Typography variant="subtitle2">{postUser}</Typography>
+              <Typography variant="caption">
+                {formatTimestamp(post.creationTime)}
+              </Typography>
+            </>
           )}
           <Typography variant="body1">{post.message}</Typography>
         </ListItemText>
