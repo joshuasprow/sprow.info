@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  	function getAdmins() {
+    	return get(/databases/$(database)/documents/config/roles).data.admins;
+    }
+    
+    function getUsers() {
+    	return get(/databases/$(database)/documents/config/roles).data.users;
+    }
+    
+  	function isAdmin() {
+      return request.auth != null && request.auth.uid in getAdmins()
+    }
+    
+    function isUser() {
+    	return request.auth != null && (isAdmin() || request.auth.uid in getUsers())
+    }
+    
+    match /config/{configId} {
+      allow read, write: if isAdmin();
+    }
+      
+    match /posts/{postId} {
+      allow read, write: if isUser();
+    }
+    
+    match /users/{userId} {
+    	function isDocOwner() {
+      	return request.auth.uid == userId;
+      }
+      
+      function notUpdatingRole() {
+      	return !("role" in request.resource.data)
+        	|| resource.data.role == request.resource.data.role;
+      }
+            
+      allow read;
+      allow create, delete: if isDocOwner();
+   		allow update: if isDocOwner() && notUpdatingRole();
+    }
+    
+    
+    match /users/{document=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
